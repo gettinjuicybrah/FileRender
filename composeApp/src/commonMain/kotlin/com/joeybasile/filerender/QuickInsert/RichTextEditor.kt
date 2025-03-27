@@ -45,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
@@ -61,6 +62,14 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.compose.koinInject
+
+
+data class CursorCaretData(
+    //The position of the caret, where Offset is relative to the ___ composable
+    val position: Offset,
+    //The height of the caret corresponds to the height of text styling in the current text field it resides in. .e.g text height of 11
+    val height: Float
+)
 
 data class BasicTextFieldType(
     val content: AnnotatedString,
@@ -149,9 +158,6 @@ fun BasicTextEntry(
     fieldState: SnapshotStateList<FieldEntry>,
     fieldValList: SnapshotStateList<MutableMap<BasicTextFieldType, TextFieldValue>>
 ) {
-
-
-
     var value by remember {
         mutableStateOf(
             TextFieldValue(
@@ -160,8 +166,6 @@ fun BasicTextEntry(
             )
         )
     }
-
-
     var isLaidOut by remember { mutableStateOf(false) }
     var isFocused by remember { mutableStateOf(false) }
 
@@ -280,13 +284,11 @@ fun BasicTextEntry(
             }
         }
     }
-
 }
 
 @Composable
 fun BasicEditor() {
     val focusedLine = remember { mutableStateOf(0) }
-
     val fieldState = remember {
         mutableStateListOf(
             FieldEntry(
@@ -317,7 +319,6 @@ fun BasicEditor() {
                 )
             )
             )
-
     }
     val fieldValList = remember {
         mutableStateListOf<MutableMap<BasicTextFieldType, TextFieldValue>>().apply {
@@ -333,9 +334,7 @@ fun BasicEditor() {
                     )
             }
         }
-
     }
-
     val focusRequesters = remember { mutableStateListOf<FocusRequester>() }
     val focusManager = LocalFocusManager.current
     LazyColumn(
